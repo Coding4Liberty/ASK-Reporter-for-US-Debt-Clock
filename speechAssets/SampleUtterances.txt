@@ -1,0 +1,16 @@
+GetNewDebtIntent to give me the debt
+GetNewDebtIntent to give me the latest debt
+GetNewDebtIntent to give me the current debt
+GetNewDebtIntent to give me the latest value
+GetNewDebtIntent for the latest value
+GetNewDebtIntent what's the latest figure
+GetNewDebtIntent what is the latest figure
+GetNewDebtIntent for the latest debt
+GetNewDebtIntent for the current debt
+GetNewDebtIntent to tell me the current debt
+GetNewDebtIntent to tell me the debt
+GetNewDebtIntent for the latest figure
+GetNewDebtIntent for the figure
+GetNewDebtIntent for the debt
+GetNewDebtIntent what's the debt
+GetNewDebtIntent what is the debt
