@@ -8,17 +8,20 @@
     or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 */
 
-
+/**
+ * App ID for the skill
+ */
 var APP_ID = ""; 
 
-
+/**
+ * The AlexaSkill prototype and helper functions
+ */
 var AlexaSkill = require('./AlexaSkill');
 
+var https = require('https');
 
-var http = require('http');
 
-
- function getDebtResponse(response) {
+function getDebtResponse(response) {
 	 
 	 makeDebtRequest(function debtLoadedCallback(err, debtResponse) {
 		 
@@ -32,7 +35,7 @@ var http = require('http');
 			speechOutput = "Sorry, Reporter is having trouble retrieving the latest U.S federal debt value right now. Please try again later.";
 		} else {
 
-			getNames(debtResponse, "b"); 
+			getNames(debtResponse, "content"); 
 
 			function getNames(obj, name) {
 
@@ -42,8 +45,8 @@ var http = require('http');
 
 						if ("object" == typeof(obj[key])) {
 							
-							getNames(obj[key], name); 
-						
+							getNames(obj[key], name);
+							
 						} else if (key == name) {
 
 							result.push(obj[key].toString());
@@ -52,92 +55,20 @@ var http = require('http');
 				} 
 			} 
 
-
-			function removeExtra(result, extra) {
-				var matchingString = result.indexOf(extra, matchingString);
-				
-				while (matchingString !== -1) {
-					result.splice(matchingString, 1); 
-					matchingString = result.indexOf(extra); 
-				} 
-			}
-			
-			function handleEscapeStrings() {
-				
-				var d = 0; 
-				var end = result.length; 
-				
-				for (d; d < end; d++) {
-					if (result[d].indexOf("\r") != -1) {
-							
-						var intermediaryResultArray = [];
-						intermediaryResultArray = result[d].split("\r");
-
-						result.splice.apply(result,[d,1].concat(intermediaryResultArray));
-						
-						end = result.length; 
-						
-					} 
-				
-				} 
-				
-				d = 0;
-				end = result.length;
-				
-				for (d; d < end; d++) {
-					if (result[d].indexOf("\n") != -1) {
-								
-						var intermediaryResultArray = [];
-						intermediaryResultArray = result[d].split("\n");
-
-						result.splice.apply(result,[d,1].concat(intermediaryResultArray));
-						
-						end = result.length; 
-						
-						console.log("new result element d is: " + result[d].toString());
-						
-					} 
-					
-				} 
-
-				d = 0;
-				end = result.length;
-				
-				for (d; d < end; d++) {
-					console.log("iteration " + d);
-					if (result[d] === undefined) {
-						result.splice(d, 1); 
-					} else if (result[d].toString() == "") {
-						result.splice(d, 1); 
-					} else if (result[d].toString() == null) {
-						result.splice(d, 1); 
-					}
-				} 
-				
-			} 
-			
-			handleEscapeStrings(); 
-
-			console.log(result.toString()); 
-			
 			var intermediarySpeech;
 			
-
 			if (/^\s+$/.test(result.toString())) {
 				intermediarySpeech = "<speak>An error has occurred. Please try again later. If you continue to receive this message, please contact the developer."
 			} else {
-				intermediarySpeech = "<speak>The current U.S federal government debt is: ";
-
+				intermediarySpeech = "<speak>The current U.S federal government debt is: $";
 
 				for (var c = 0; c < result.length; c++) {
-					intermediarySpeech += "<p>" + result[c].toString() + "</p> <break time='1s'/>";
+					intermediarySpeech += result[c].toString() + ". <break time='1s'/>";
 				} 
 				
 			} 
 
-			intermediarySpeech += ". You can visit u s governement debt dot u s in your web browser to learn more .</speak>";
-			
-			console.log("intermediarySpeech output = " + intermediarySpeech.toString());
+			intermediarySpeech += ". You can visit national debt clocks dot org in your web browser to learn more .</speak>";
 			
 			speechOutput = {
 				speech: intermediarySpeech.toString(),
@@ -146,23 +77,19 @@ var http = require('http');
 			
 			response.tell(speechOutput);
 			
-		} 
+		}
 
-	});
+	}); 
 	 
- } 
+} 
 
 function makeDebtRequest(debtLoadedCallback) {
-	 
-	var baseURL = "http://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20html%20WHERE%20url%3D%22http%3A%2F%2Fwww.usgovernmentdebt.us%2F%22%20and%20xpath%3D%22%2F%2F*%5B%40id%3D'broad_col2'%5D%2Fdiv%5B2%5D%2Fp%5B1%5D%2Fb%22&format=json&_maxage=60&_nocache=";
+		 
+	var baseURL = "https://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20html%20WHERE%20url%3D%22http%3A%2F%2Fwww.nationaldebtclocks.org%2Fdebtclock%2Funitedstates%22%20and%20xpath%3D%22%2F%2F*%5B%40id%3D'debtDisplayFast'%5D%22&format=json";
 	
-	var currentTimeStamp = Date.now();
+	var url = baseURL; 
 	
-	var url = baseURL + currentTimeStamp;
-	
-	console.log(url);
-	
-	http.get(url, function (res) {
+	https.get(url, function (res) {
         var debtResponseString = '';
         console.log('Status Code: ' + res.statusCode);
 
@@ -190,6 +117,7 @@ function makeDebtRequest(debtLoadedCallback) {
     });
 	
 } 
+
 
 
 /**
@@ -247,16 +175,15 @@ ReporterDebtRequester.prototype.intentHandlers = {
     }
 };
 
+
 function handleNewDebtRequest(response) {
 	
 	getDebtResponse(response); 
 	
-} 
-
+}
 
 exports.handler = function (event, context) {	
 	
-
     var debtRequester = new ReporterDebtRequester();
 	
     debtRequester.execute(event, context);
