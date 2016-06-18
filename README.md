@@ -2,7 +2,7 @@
 
 <img src="./images/108_px_logo.png" width="108">
 
-> This is an Amazon Alexa Skills app that will read the current approximate value of the U.S national debt to you. It retrieves the figure for the U.S national debt from the usgovernmentdebt.us website.
+> This is an Amazon Alexa Skills app that will read the current approximate value of the U.S national debt to you. It retrieves the figure for the U.S national debt from the nationaldebtclocks.org website.
 
 # Commands
 
